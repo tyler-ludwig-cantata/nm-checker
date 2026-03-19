@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nm-checker"
+version = "0.1.0"
+description = "CCBHC Quality Measures CSV validator for New Mexico"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.2",
+    "rich>=13.7",
+    "typer>=0.12",
+]
+
+[project.scripts]
+nm-checker = "nm_checker.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nm_checker"]
