@@ -38,6 +38,13 @@ def _get_col(df: pd.DataFrame, idx: int) -> pd.Series:
     return pd.Series(dtype=str)
 
 
+def _norm_id(val: str) -> str:
+    """Normalize integer-float strings: '3600.0' -> '3600'."""
+    if val.endswith(".0") and val[:-2].isdigit():
+        return val[:-2]
+    return val
+
+
 def run_cross_file_checks(
     file_results: Dict[str, FileResult],
 ) -> CrossFileResult:
@@ -131,8 +138,8 @@ def run_cross_file_checks(
         # Build set of (mrn, encounter#) tuples
         enc_pairs: Set[tuple] = set()
         for _, row in enc_df.iterrows():
-            mrn = str(row.iloc[ENCOUNTERS_MRN_IDX]).strip() if ENCOUNTERS_MRN_IDX < len(row) else ""
-            enc = str(row.iloc[ENCOUNTERS_ENC_IDX]).strip() if ENCOUNTERS_ENC_IDX < len(row) else ""
+            mrn = _norm_id(str(row.iloc[ENCOUNTERS_MRN_IDX]).strip()) if ENCOUNTERS_MRN_IDX < len(row) else ""
+            enc = _norm_id(str(row.iloc[ENCOUNTERS_ENC_IDX]).strip()) if ENCOUNTERS_ENC_IDX < len(row) else ""
             if mrn and enc:
                 enc_pairs.add((mrn, enc))
         # Also build just the encounter number set (for looser check)
@@ -143,8 +150,8 @@ def run_cross_file_checks(
                 continue
             for row_idx, row in dfs[ftype].iterrows():
                 data_row = int(row_idx) + 2
-                mrn = str(row.iloc[mrn_idx]).strip() if mrn_idx < len(row) else ""
-                enc = str(row.iloc[enc_idx]).strip() if enc_idx < len(row) else ""
+                mrn = _norm_id(str(row.iloc[mrn_idx]).strip()) if mrn_idx < len(row) else ""
+                enc = _norm_id(str(row.iloc[enc_idx]).strip()) if enc_idx < len(row) else ""
                 if enc and enc not in enc_nums:
                     result.issues.append(Issue(
                         file=ftype, row=data_row, col="C", col_name="Encounter #",
