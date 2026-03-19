@@ -38,7 +38,7 @@ def print_file_result(result: FileResult, verbose: bool = False) -> None:
     if not result.detected:
         console.print("    [yellow]File type could not be determined from filename[/yellow]")
 
-    if (result.issues and not result.passed) or verbose:
+    if result.issues or verbose:
         for issue in result.issues[:50]:  # cap output
             color = _severity_color(issue.severity)
             loc = f"row {issue.row}" if issue.row else "file"

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import io
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional
@@ -104,7 +105,9 @@ def validate_file(path: Path, spec: FileSpec) -> FileResult:
             ))
         else:
             actual_hdr = str(df.columns[cs.idx]).strip()
-            if actual_hdr.lower() != cs.name.lower():
+            # Strip pandas deduplication suffix (e.g. "Blank.1" -> "Blank")
+            actual_hdr_cmp = re.sub(r'\.\d+$', '', actual_hdr)
+            if actual_hdr_cmp.lower() != cs.name.lower():
                 result.issues.append(Issue(
                     file=fname, row=None, col=cs.letter, col_name=cs.name,
                     message=f"Column {cs.letter}: expected header '{cs.name}', found '{actual_hdr}'",
